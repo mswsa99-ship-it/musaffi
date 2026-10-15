@@ -26,6 +26,7 @@
   }
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { margin: 0; }
 body { background: var(--bg); color: var(--ink); font-family: var(--font); line-height: 1.6; font-size: 16px; }
 main { max-width: 1180px; margin: 0 auto; padding: 16px; }
@@ -102,7 +103,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .meter > div { height: 100%; }
 .env { width: 100%; height: 34px; display: block; }
 .stem-ctl { display: flex; align-items: center; gap: 10px; direction: ltr; }
-.stem-ctl input { flex: 1; }
+.stem-ctl input { flex: 1; accent-color: var(--accent); }
 .stem-ctl output { width: 46px; text-align: left; }
 .mute { padding: 4px 10px; font-size: .8rem; }
 .mute.on { background: var(--danger); color: #fff; border-color: var(--danger); }

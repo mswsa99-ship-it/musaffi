@@ -15,6 +15,7 @@ import multiprocessing as mp
 import os
 import secrets
 import shutil
+import subprocess
 import threading
 import time
 import traceback
@@ -87,6 +88,17 @@ def _process(d: Path) -> None:
     if meta["has_video"] and meta["blur_mode"] != "none":
         steps.append("video")
     n = len(steps) or 1
+
+    # نسخة معاينة يقرؤها أي متصفح (إذا كان الفيديو بصيغة غير مدعومة مثل HEVC من الآيفون)
+    if meta["has_video"]:
+        codec = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries",
+                                "stream=codec_name,pix_fmt", "-of", "csv=p=0", str(src)],
+                               capture_output=True, text=True).stdout.strip()
+        if not codec.startswith("h264,yuv420p") or src.suffix.lower() not in (".mp4", ".m4v", ".mov"):
+            write_status(d, state="processing", progress=0, message="تجهيز نسخة المعاينة")
+            _ff("-i", str(src), "-an", "-vf", "scale='min(854,iw)':-2", "-c:v", "libx264",
+                "-preset", "veryfast", "-crf", "26", "-pix_fmt", "yuv420p", "-movflags", "+faststart",
+                str(d / "preview.mp4"))
 
     for i, step in enumerate(steps):
         base, span = 100 * i / n, 100 / n
@@ -164,7 +176,6 @@ def _export(d: Path, opts: dict) -> None:
 
 
 def _ff(*args: str) -> None:
-    import subprocess
     subprocess.run(["ffmpeg", "-v", "error", "-y", *args], check=True)
 
 

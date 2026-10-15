@@ -148,6 +148,9 @@ def stem(job_id: str, name: str):
 @app.get("/api/jobs/{job_id}/source")
 def source(job_id: str):
     d = _dir(job_id)
+    preview = d / "preview.mp4"
+    if preview.exists():
+        return FileResponse(preview, media_type="video/mp4")
     meta = jobs.read_json(d, jobs.META)
     return FileResponse(d / meta["source"])
 
