@@ -22,6 +22,9 @@ fail() { printf '\n\033[1;31m✗ %s\033[0m\nالتفاصيل في %s\n' "$*" "$L
 trap 'fail "توقف التثبيت عند السطر $LINENO"' ERR
 
 [ "$(id -u)" = 0 ] || { echo "شغّل الأمر مع sudo"; exit 1; }
+export HOME="${HOME:-/root}"
+# عند أول تشغيل للسيرفر قد يكون نظام التحديث التلقائي شغالًا؛ ننتظره بدل الفشل
+echo 'DPkg::Lock::Timeout "900";' > /etc/apt/apt.conf.d/90musaffi-lock-wait
 exec > >(tee -a "$LOG") 2>&1
 ARCH=$(uname -m)
 say "بدء تثبيت مُصفّي على معالج $ARCH — يستغرق 20 إلى 40 دقيقة، لا تغلق النافذة"
