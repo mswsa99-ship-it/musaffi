@@ -21,7 +21,8 @@ import numpy as np
 
 from . import config
 
-FACE_STRIDE = 3        # كشف الوجوه كل 3 إطارات (توفير على المعالج)
+FRAME_STRIDE = 2       # تحليل إطار من كل إطارين، والفجوات تُسد تلقائيًا (نصف الوقت)
+FACE_STRIDE = 4        # كشف الوجوه كل 4 إطارات (توفير على المعالج)
 HOLD_FRAMES = 8        # إبقاء التمويه بضعة إطارات إذا فقد النظام الشخص لحظيًا
 MIN_FACE_PX = 20       # الوجوه الأصغر من هذا لا تُستخدم لتقدير الجنس
 
@@ -110,6 +111,10 @@ def analyze(src: Path, work: Path, progress) -> dict:
         ok, img = cap.read()
         if not ok:
             break
+        if f % FRAME_STRIDE:
+            frames.append([])
+            f += 1
+            continue
         res = m["yolo"].track(img, persist=True, classes=[0], conf=0.25, iou=0.5, imgsz=640,
                               tracker="bytetrack.yaml", verbose=False)[0]
         people, entries = {}, []
@@ -244,8 +249,9 @@ def decide(tracks: dict, mode: str, sensitivity: str = "cautious") -> dict[str, 
 
 
 def _blur_image(img: np.ndarray) -> np.ndarray:
+    """تمويه قوي لا يمكن عكسه: تكسير بكسلات كبير ثم تنعيم."""
     h, w = img.shape[:2]
-    block = max(8, min(h, w) // 28)
+    block = max(14, min(h, w) // 11)
     small = cv2.resize(img, (max(1, w // block), max(1, h // block)), interpolation=cv2.INTER_AREA)
     pix = cv2.resize(small, (w, h), interpolation=cv2.INTER_NEAREST)
     k = (block * 2) | 1

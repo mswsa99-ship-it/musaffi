@@ -315,11 +315,11 @@
     if (any) {
       ctx.lineWidth = Math.max(8, canvas.width * 0.025); ctx.lineJoin = "round";
       ctx.clip();
-      const bw = Math.max(8, Math.round(canvas.width / 28));
+      const bw = Math.max(14, Math.round(Math.min(canvas.width, canvas.height) / 11));
       pixel.width = Math.ceil(canvas.width / bw); pixel.height = Math.ceil(canvas.height / bw);
       pctx.drawImage(video, 0, 0, pixel.width, pixel.height);
       ctx.imageSmoothingEnabled = false;
-      ctx.filter = "blur(4px)";
+      ctx.filter = `blur(${Math.round(bw / 2)}px)`;
       ctx.drawImage(pixel, 0, 0, canvas.width, canvas.height);
     }
     ctx.restore();
