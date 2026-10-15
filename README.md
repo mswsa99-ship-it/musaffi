@@ -22,9 +22,17 @@
 
 ## التشغيل
 
-### بـ Docker (الأسهل)
+### الأسهل: أمر واحد على سيرفر Ubuntu 24.04 جديد (ARM أو x86)
 ```bash
-git clone <رابط المستودع> musaffi && cd musaffi
+curl -fsSL https://raw.githubusercontent.com/mswsa99-ship-it/musaffi/main/install.sh | sudo bash
+```
+يثبّت كل شيء، ويشغّل الموقع كخدمة دائمة، ويجهّز رابط HTTPS مجانيًا مثل `https://1-2-3-4.sslip.io`، ويطبع الرابط في النهاية.
+لاستخدام اسم نطاق خاص بك: وجّه النطاق لعنوان السيرفر ثم شغّل الأمر مع `MUSAFFI_DOMAIN=example.com`.
+للتحديث لاحقًا: شغّل نفس الأمر مرة ثانية.
+
+### بـ Docker
+```bash
+git clone https://github.com/mswsa99-ship-it/musaffi.git && cd musaffi
 docker compose up -d --build
 ```
 ثم افتح `http://عنوان-السيرفر:8000`. تُحمَّل النماذج مرة واحدة أثناء البناء (حوالي 700 ميجابايت)، وبعدها لا يتصل الموقع بالإنترنت.

@@ -100,7 +100,14 @@ def separate_vocals(mix_path: Path, work: Path, hq: bool) -> np.ndarray:
 def enhance_speech(vocals: np.ndarray) -> np.ndarray:
     import torch
 
-    model, state, enhance = _get_df()
+    try:
+        model, state, enhance = _get_df()
+    except ImportError:
+        # احتياط إذا تعذّر تثبيت DeepFilterNet على السيرفر: تنظيف أبسط بخوارزمية noisereduce
+        import noisereduce as nr
+
+        out = nr.reduce_noise(y=vocals.T, sr=SR, stationary=False, prop_decrease=0.9, n_jobs=1)
+        return _match_len(out.T.astype(np.float32), len(vocals))
     df_sr = state.sr()
     x = _resample(vocals, SR, df_sr)
     # المعالجة على أجزاء (30 ثانية) مع تداخل ودمج ناعم، لتقليل استهلاك الذاكرة في المقاطع الطويلة
