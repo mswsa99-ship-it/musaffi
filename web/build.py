@@ -25,7 +25,7 @@ def main() -> None:
         data = Path(getattr(a, name)).read_bytes()
         parts = [data[i:i + PART] for i in range(0, len(data), PART)]
         for i, p in enumerate(parts):
-            (out / "models" / f"{name}.{i}.bin").write_bytes(p)
+            (out / "models" / f"{name}.{i}.wasm").write_bytes(p)
         manifest[name] = {"parts": len(parts), "size": len(data)}
 
     def module(path: str, glob: str) -> str:

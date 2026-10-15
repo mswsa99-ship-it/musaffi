@@ -38,7 +38,7 @@
     let cache = null;
     try { cache = await caches.open("musaffi-models-v1"); } catch (_) {}
     for (let i = 0; i < m.parts; i++) {
-      const url = `models/${name}.${i}.bin`;
+      const url = `models/${name}.${i}.wasm`;
       let resp = null;
       try { resp = cache && (await cache.match(url)); } catch (_) {}
       if (!resp) {
