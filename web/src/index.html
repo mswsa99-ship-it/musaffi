@@ -1,0 +1,117 @@
+<title>مُصفّي</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>/*CSS*/</style>
+<div class="app" dir="rtl" lang="ar">
+<header class="top">
+  <div class="brand"><span class="logo" aria-hidden="true">◐</span> مُصفّي</div>
+  <div class="tag">عزل الكلام عن الموسيقى والضوضاء، وتمويه الصور — داخل جهازك</div>
+</header>
+
+<main>
+  <section id="step-upload" class="card">
+    <h1>اختر المقطع</h1>
+    <div class="privacy" role="note">
+      <strong>مقطعك لا يغادر جهازك</strong>
+      <ul>
+        <li>كل المعالجة تتم داخل متصفحك، ولا يُرفع المقطع إلى أي خادم أو جهة خارجية.</li>
+        <li>عند إغلاق الصفحة يختفي المقطع وكل نتائجه من الذاكرة تلقائيًا، ولا يُحفظ شيء.</li>
+        <li>نماذج الذكاء الاصطناعي تُحمَّل لجهازك مرة واحدة فقط (حوالي 110 ميجابايت) وتبقى في المتصفح للمرات القادمة.</li>
+      </ul>
+    </div>
+
+    <label id="drop" class="drop" tabindex="0">
+      <input id="file" type="file" accept="video/*,audio/*" hidden>
+      <span class="drop-icon" aria-hidden="true">⇪</span>
+      <span id="drop-text">اسحب الملف هنا أو اضغط للاختيار</span>
+      <small>فيديو أو صوت — حتى 10 دقائق</small>
+    </label>
+
+    <fieldset>
+      <legend>الصوت</legend>
+      <label class="switch"><input type="checkbox" id="opt-audio" checked> فصل الأصوات (كلام، موسيقى، ضوضاء)</label>
+    </fieldset>
+
+    <fieldset>
+      <legend>تمويه الصورة</legend>
+      <div class="seg" role="radiogroup" aria-label="التمويه">
+        <label><input type="radio" name="blur" value="none" checked><span>بدون تمويه</span></label>
+        <label><input type="radio" name="blur" value="women"><span>النساء فقط</span></label>
+        <label><input type="radio" name="blur" value="all"><span>الجميع</span></label>
+      </div>
+      <div id="sens-wrap" class="seg sub" role="radiogroup" aria-label="الحساسية" hidden>
+        <label><input type="radio" name="sens" value="cautious" checked><span>حذر<small>يموّه كل من لم يتأكد أنه رجل</small></span></label>
+        <label><input type="radio" name="sens" value="balanced"><span>متوازن<small>يموّه من يرجّح أنها امرأة فقط</small></span></label>
+      </div>
+    </fieldset>
+
+    <p class="hint small">الأفضل استخدام Chrome أو Edge على الكمبيوتر. المعالجة على الجوال ممكنة لكنها أبطأ بكثير.</p>
+    <button id="btn-start" class="primary" disabled>ابدأ المعالجة</button>
+    <p id="upload-error" class="error" role="alert"></p>
+  </section>
+
+  <section id="step-progress" class="card" hidden>
+    <h1>جارٍ المعالجة على جهازك</h1>
+    <div class="bar"><div id="prog-bar"></div></div>
+    <p id="prog-msg"></p>
+    <p id="prog-sub" class="muted small"></p>
+  </section>
+
+  <section id="step-studio" hidden>
+    <div class="studio">
+      <div class="stage card">
+        <div class="player">
+          <video id="video" playsinline preload="auto" muted></video>
+          <canvas id="stage"></canvas>
+          <div id="audio-only" class="audio-only" hidden>ملف صوتي</div>
+        </div>
+        <div class="controls">
+          <button id="btn-play" class="primary round" aria-label="تشغيل">▶</button>
+          <input id="seek" type="range" min="0" max="1000" value="0" aria-label="الموضع">
+          <span id="time" class="mono">0:00</span>
+        </div>
+        <label class="switch small"><input type="checkbox" id="preview-blur" checked> معاينة التمويه</label>
+      </div>
+
+      <div class="side">
+        <div id="mixer" class="card" hidden>
+          <h2>لوحة المزج</h2>
+          <div class="presets">
+            <button data-preset="speech">الكلام فقط</button>
+            <button data-preset="clean">إزالة الموسيقى</button>
+            <button data-preset="original">الصوت الأصلي</button>
+          </div>
+          <div id="stems"></div>
+        </div>
+
+        <div id="people" class="card" hidden>
+          <h2>الأشخاص في المقطع</h2>
+          <p class="muted small">راجع قرار التمويه لكل شخص واضغط على الصورة لتغييره.</p>
+          <div class="seg compact" role="radiogroup" aria-label="منطقة التمويه">
+            <label><input type="radio" name="region" value="body" checked><span>الجسم كاملًا</span></label>
+            <label><input type="radio" name="region" value="face"><span>الوجه فقط</span></label>
+          </div>
+          <div id="people-list" class="people-list"></div>
+        </div>
+
+        <div class="card">
+          <h2>حفظ النتيجة</h2>
+          <div class="seg compact" role="radiogroup" aria-label="الصيغة">
+            <label id="fmt-video"><input type="radio" name="fmt" value="video" checked><span>فيديو</span></label>
+            <label id="fmt-audio"><input type="radio" name="fmt" value="audio"><span>صوت فقط</span></label>
+            <label id="fmt-stems"><input type="radio" name="fmt" value="stems"><span>المسارات منفصلة</span></label>
+          </div>
+          <button id="btn-export" class="primary">حفظ على جهازي</button>
+          <div id="export-progress" hidden>
+            <div class="bar"><div id="exp-bar"></div></div>
+            <p id="exp-msg" class="muted small"></p>
+          </div>
+          <button id="btn-new" class="ghost">معالجة مقطع جديد</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer>بدون تسجيل، بدون خوادم، بدون ملفات تعريف ارتباط.</footer>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0/dist/ort.all.min.js"></script>
+<script>/*JS*/</script>

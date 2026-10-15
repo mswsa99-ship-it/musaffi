@@ -94,6 +94,12 @@ def separate_vocals(mix_path: Path, work: Path, hq: bool) -> np.ndarray:
     path = work / Path(out[0]).name
     voc, sr = sf.read(path, dtype="float32", always_2d=True)
     path.unlink(missing_ok=True)
+    # إصلاح خلل في audio-separator: يضرب الناتج في أعلى قيمة للصوت حتى لو لم يُطبَّع الصوت،
+    # فيخرج الصوت البشري أخفض من حقيقته ويتسرب جزء منه إلى مسار الموسيقى.
+    mix, _ = sf.read(mix_path, dtype="float32", always_2d=True)
+    peak = float(np.abs(mix).max())
+    if 0 < peak <= 1.0:
+        voc = voc / peak
     return _resample(voc, sr, SR)
 
 
