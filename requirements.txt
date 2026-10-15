@@ -1,0 +1,27 @@
+# torch نسخة المعالج (CPU) تُثبَّت أولًا — راجع Dockerfile أو README
+# pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+
+fastapi==0.143.1
+uvicorn[standard]==0.53.0
+python-multipart==0.0.32
+
+# الصوت
+audio-separator[cpu]==0.47.0
+noisereduce==3.0.3
+soundfile==0.14.0
+soxr==1.1.0
+DeepFilterLib==0.5.6
+appdirs
+loguru
+sympy
+packaging
+requests
+# DeepFilterNet يُثبَّت بدون تبعياته (يطلب numpy قديمة دون حاجة):
+# pip install --no-deps deepfilternet==0.5.6
+
+# الصورة
+ultralytics==8.4.177
+lap
+insightface==2.1
+onnxruntime==1.29.0
+opencv-python-headless

@@ -1,0 +1,18 @@
+services:
+  musaffi:
+    build:
+      context: .
+      args:
+        WITH_HQ: "0"   # اجعلها "1" لإضافة نموذج الجودة القصوى (بطيء بدون كرت شاشة)
+    ports:
+      - "8000:8000"
+    environment:
+      MUSAFFI_MAX_UPLOAD_MB: "300"
+      MUSAFFI_MAX_DURATION_SEC: "900"
+      MUSAFFI_TTL_AFTER_DONE_MIN: "30"
+      MUSAFFI_TTL_MAX_MIN: "240"
+    # ملفات المستخدمين داخل الحاوية فقط، وتُمسح عند كل إعادة تشغيل.
+    # لا نربطها بمجلد دائم على السيرفر حتى لا يبقى أي أثر.
+    tmpfs:
+      - /tmp
+    restart: unless-stopped
