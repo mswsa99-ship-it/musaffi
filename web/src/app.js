@@ -70,8 +70,16 @@
   async function session(name, bytes, preferGpu) {
     if (sessions[name]) return sessions[name];
     let s = null;
+    const timeout = (p, ms) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), ms))]);
     if (preferGpu && navigator.gpu) {
-      try { s = await ort.InferenceSession.create(bytes, { executionProviders: ["webgpu"] }); s._gpu = true; } catch (_) { s = null; }
+      // كرت الشاشة أسرع بكثير، لكن بعض الأجهزة تتعثر فيه؛ نجربه بمهلة ثم نرجع للمعالج
+      try {
+        const adapter = await timeout(navigator.gpu.requestAdapter(), 5000);
+        if (adapter && !adapter.isFallbackAdapter) {
+          s = await timeout(ort.InferenceSession.create(bytes, { executionProviders: ["webgpu"] }), 60000);
+          s._gpu = true;
+        }
+      } catch (_) { s = null; }
     }
     if (!s) s = await ort.InferenceSession.create(bytes, { executionProviders: ["wasm"] });
     sessions[name] = s;
